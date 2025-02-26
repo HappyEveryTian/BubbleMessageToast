@@ -4,7 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:background="@drawable/toast_background"
-    android:padding="5dp">
+    android:padding="5dp"
+    android:animateLayoutChanges="false"
+    android:persistentDrawingCache="none">
     <ImageView
         android:id="@+id/toast_icon"
         android:layout_width="20dp"

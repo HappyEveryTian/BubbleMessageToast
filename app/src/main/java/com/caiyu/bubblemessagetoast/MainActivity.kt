@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.lifecycle.LifecycleOwner
 import com.caiyu.bubblemessagetoast.databinding.ActivityMainBinding
 import com.monke.mopermission.MoPermission
 import com.monke.mopermission.MoPermissionDialog
