@@ -1,20 +1,18 @@
 plugins {
-    id("com.android.application")
+    id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("maven-publish")
 }
 
 android {
-    namespace = "com.caiyu.bubblemessagetoastdemo"
+    namespace = "com.caiyu.bubblemessagetoast"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.caiyu.bubblemessagetoastdemo"
         minSdk = 26
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildFeatures {
@@ -36,11 +34,31 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "com.caiyu.bubblemessagetoast"
+            artifactId = "bubblemessagetoast"
+            version = "1.0.0"
+
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
 }
 
 dependencies {
-    implementation(project(":bubblemessagetoast"))
-    implementation("io.github.zhangqinhao:MoPermission:1.0.9")
+
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.3.1")
     implementation("com.google.android.material:material:1.12.0")

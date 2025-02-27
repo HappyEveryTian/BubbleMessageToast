@@ -2,13 +2,11 @@ package com.caiyu.bubblemessagetoast
 
 import android.Manifest
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import androidx.lifecycle.LifecycleOwner
-import com.caiyu.bubblemessagetoast.databinding.ActivityMainBinding
+import androidx.appcompat.app.AppCompatActivity
+import com.caiyu.bubblemessagetoastdemo.databinding.ActivityMainBinding
 import com.monke.mopermission.MoPermission
-import com.monke.mopermission.MoPermissionDialog
 import com.monke.mopermission.OnRequestNecessaryPermissionListener
 
 class MainActivity : AppCompatActivity() {

@@ -13,7 +13,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.caiyu.bubblemessagetoast.databinding.BubbleMessageToastLayoutBinding
 import java.lang.ref.WeakReference
