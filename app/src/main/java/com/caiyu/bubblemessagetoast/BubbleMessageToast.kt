@@ -7,7 +7,9 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleObserver
@@ -25,6 +27,8 @@ class BubbleMessageToast private constructor(
         BubbleMessageToastLayoutBinding.inflate(LayoutInflater.from(context), this, true)
     }
     private val dismissAction = Runnable { dismiss() }
+    private val cancelAction = Runnable { cancel() }
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     companion object {
         const val SUCCESS = 0
@@ -33,7 +37,6 @@ class BubbleMessageToast private constructor(
         const val LENGTH_SHORT = 2000L
         const val LENGTH_LONG = 4000L
         private var currentRef: WeakReference<BubbleMessageToast>? = null
-        private val mainHandler = Handler(Looper.getMainLooper())
 
         @JvmStatic
         fun show(context: Context, message: String, type: Int = SUCCESS, duration: Long = LENGTH_SHORT) {
@@ -41,7 +44,7 @@ class BubbleMessageToast private constructor(
                 throw IllegalArgumentException("Context must be an Activity and implement LifecycleOwner")
             }
 
-            currentRef?.get()?.dismiss()
+            currentRef?.get()?.cancel()
             currentRef = WeakReference(BubbleMessageToast(context))
             currentRef?.get()?.apply {
                 bindLifeCycle(context)
@@ -50,33 +53,38 @@ class BubbleMessageToast private constructor(
         }
     }
 
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
+        cancel()
+    }
+
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
-        dismiss()
+        cancel()
         owner.lifecycle.removeObserver(this)
     }
 
     private fun bindLifeCycle(context: Context) {
-        (context as LifecycleOwner).lifecycle.addObserver(this)
+        (context as? LifecycleOwner)?.lifecycle?.addObserver(this)
     }
 
     private fun show(message: String, type: Int, duration: Long = LENGTH_SHORT) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            mainHandler.post { show(message, type, duration) }
+            return
+        }
+
         mBinding.toastMessage.text = message
         when (type) {
             SUCCESS -> {
-                mBinding.toastIcon.setBackgroundResource(R.drawable.success_icon)
+                mBinding.toastIcon.setImageResource(R.drawable.success_icon)
             }
             FAILED -> {
-                mBinding.toastIcon.setBackgroundResource(R.drawable.failed_icon)
+                mBinding.toastIcon.setImageResource(R.drawable.failed_icon)
             }
-            else -> {
-                mBinding.root.removeView(mBinding.toastIcon)
+            COMMON -> {
+                mBinding.toastIcon.visibility = View.GONE
             }
-        }
-
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            mainHandler.post { show(context, message) }
-            return
         }
 
         val rootView = (context as Activity).window.decorView.findViewById<ViewGroup>(android.R.id.content)
@@ -95,25 +103,37 @@ class BubbleMessageToast private constructor(
         removeCallbacks(dismissAction)
 
         postDelayed(dismissAction, duration)
+        viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
 
-        alpha = 0f
-        translationY = -height.toFloat()
-        animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setDuration(300)
-            .start()
+                alpha = 0f
+                translationY = -height.toFloat()
+                this@BubbleMessageToast.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(300)
+                    .start()
+            }
+        })
+    }
+
+    private fun cancel() {
+        if (currentRef?.get() == this) currentRef = null
+        mainHandler.post {
+            removeFromParent()
+        }
     }
 
     private fun dismiss() {
+        if (currentRef?.get() == this) currentRef = null
+
         animate()
             .alpha(0f)
             .translationY(-height.toFloat())
             .setDuration(200)
             .withEndAction {
-                parent?.let {
-                    (it as ViewGroup).removeView(this)
-                }
+                removeFromParent()
             }
             .start()
     }
@@ -125,10 +145,16 @@ class BubbleMessageToast private constructor(
         } else 0
     }
 
+    private fun removeFromParent() {
+        parent?.let {
+            (it as ViewGroup).removeView(this)
+        }
+    }
+
     override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
         mainHandler.removeCallbacksAndMessages(null)
         mBinding.toastIcon.setImageDrawable(null)
         mBinding.toastIcon.background = null
+        super.onDetachedFromWindow()
     }
 }
