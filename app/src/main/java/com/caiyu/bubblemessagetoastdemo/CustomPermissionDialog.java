@@ -1,4 +1,4 @@
-package com.caiyu.bubblemessagetoast;
+package com.caiyu.bubblemessagetoastdemo;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -9,6 +9,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.caiyu.bubblemessagetoastdemo.R;
 import com.monke.mopermission.MoPermissionBaseDialog;
 
 public class CustomPermissionDialog extends MoPermissionBaseDialog {

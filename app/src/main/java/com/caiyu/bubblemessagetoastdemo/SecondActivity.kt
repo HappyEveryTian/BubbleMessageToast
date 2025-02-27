@@ -1,8 +1,8 @@
-package com.caiyu.bubblemessagetoast
+package com.caiyu.bubblemessagetoastdemo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.caiyu.bubblemessagetoast.databinding.ActivitySecondBinding
+import com.caiyu.bubblemessagetoastdemo.databinding.ActivitySecondBinding
 
 class SecondActivity : AppCompatActivity() {
     private val mBinding by lazy {

@@ -1,14 +1,13 @@
-package com.caiyu.bubblemessagetoast
+package com.caiyu.bubblemessagetoastdemo
 
 import android.Manifest
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import androidx.lifecycle.LifecycleOwner
-import com.caiyu.bubblemessagetoast.databinding.ActivityMainBinding
+import androidx.appcompat.app.AppCompatActivity
+import com.caiyu.bubblemessagetoast.BubbleMessageToast
+import com.caiyu.bubblemessagetoastdemo.databinding.ActivityMainBinding
 import com.monke.mopermission.MoPermission
-import com.monke.mopermission.MoPermissionDialog
 import com.monke.mopermission.OnRequestNecessaryPermissionListener
 
 class MainActivity : AppCompatActivity() {
@@ -42,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         mBinding.toastBtn3.setOnClickListener {
-            BubbleMessageToast.show(this, "success", BubbleMessageToast.FAILED)
+            BubbleMessageToast.show(this, "failed", BubbleMessageToast.FAILED)
 //            BubbleMessageToast.show(this, "failure", BubbleMessageToast.LENGTH_SHORT, R.drawable.toast_background, R.drawable.failed_icon)
         }
 
