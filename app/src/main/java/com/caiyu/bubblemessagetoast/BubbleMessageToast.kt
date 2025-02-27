@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -27,7 +28,6 @@ class BubbleMessageToast private constructor(
         BubbleMessageToastLayoutBinding.inflate(LayoutInflater.from(context), this, true)
     }
     private val dismissAction = Runnable { dismiss() }
-    private val cancelAction = Runnable { cancel() }
     private val mainHandler = Handler(Looper.getMainLooper())
 
     companion object {
@@ -40,15 +40,44 @@ class BubbleMessageToast private constructor(
 
         @JvmStatic
         fun show(context: Context, message: String, type: Int = SUCCESS, duration: Long = LENGTH_SHORT) {
-            if (context !is Activity || context !is LifecycleOwner) {
-                throw IllegalArgumentException("Context must be an Activity and implement LifecycleOwner")
+            require(context is Activity || context is LifecycleOwner) {
+                "Context must be an Activity and implement LifecycleOwner"
             }
 
             currentRef?.get()?.cancel()
             currentRef = WeakReference(BubbleMessageToast(context))
             currentRef?.get()?.apply {
                 bindLifeCycle(context)
-                show(message, type, duration)
+                mBinding.toastMessage.text = message
+                when (type) {
+                    SUCCESS -> {
+                        mBinding.toastIcon.setImageResource(R.drawable.success_icon)
+                    }
+                    FAILED -> {
+                        mBinding.toastIcon.setImageResource(R.drawable.failed_icon)
+                    }
+                    COMMON -> {
+                        mBinding.toastIcon.visibility = View.GONE
+                    }
+                }
+                show(message, duration)
+            }
+        }
+
+        @JvmStatic
+        fun show(context: Context, message: String, duration: Long, @DrawableRes rootBg: Int, @DrawableRes icon: Int) {
+            require(context is Activity || context is LifecycleOwner) {
+                "Context must be an Activity and implement LifecycleOwner"
+            }
+
+            currentRef?.get()?.cancel()
+            currentRef = WeakReference(BubbleMessageToast(context))
+            currentRef?.get()?.apply {
+                bindLifeCycle(context)
+                mBinding.toastMessage.text = message
+                mBinding.root.setBackgroundResource(rootBg)
+                mBinding.toastIcon.setImageResource(icon)
+                show(message, duration)
             }
         }
     }
@@ -68,23 +97,10 @@ class BubbleMessageToast private constructor(
         (context as? LifecycleOwner)?.lifecycle?.addObserver(this)
     }
 
-    private fun show(message: String, type: Int, duration: Long = LENGTH_SHORT) {
+    private fun show(message: String, duration: Long = LENGTH_SHORT) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            mainHandler.post { show(message, type, duration) }
+            mainHandler.post { show(message, duration) }
             return
-        }
-
-        mBinding.toastMessage.text = message
-        when (type) {
-            SUCCESS -> {
-                mBinding.toastIcon.setImageResource(R.drawable.success_icon)
-            }
-            FAILED -> {
-                mBinding.toastIcon.setImageResource(R.drawable.failed_icon)
-            }
-            COMMON -> {
-                mBinding.toastIcon.visibility = View.GONE
-            }
         }
 
         val rootView = (context as Activity).window.decorView.findViewById<ViewGroup>(android.R.id.content)
@@ -100,9 +116,9 @@ class BubbleMessageToast private constructor(
     }
 
     private fun show(duration: Long) {
-        removeCallbacks(dismissAction)
+        mainHandler.removeCallbacks(dismissAction)
 
-        postDelayed(dismissAction, duration)
+        mainHandler.postDelayed(dismissAction, duration)
         viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 viewTreeObserver.removeOnGlobalLayoutListener(this)

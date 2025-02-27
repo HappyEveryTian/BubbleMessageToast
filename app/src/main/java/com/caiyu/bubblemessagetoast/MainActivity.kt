@@ -1,6 +1,7 @@
 package com.caiyu.bubblemessagetoast
 
 import android.Manifest
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -29,7 +30,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "权限获取成功", Toast.LENGTH_SHORT).show()
             }
 
-        }, MoPermissionDialog::class.java, Manifest.permission.SYSTEM_ALERT_WINDOW)
+        }, CustomPermissionDialog::class.java, Manifest.permission.SYSTEM_ALERT_WINDOW)
 
         mBinding.toastBtn1.setOnClickListener {
             BubbleMessageToast.show(this, "hello", BubbleMessageToast.COMMON)
@@ -37,10 +38,16 @@ class MainActivity : AppCompatActivity() {
 
         mBinding.toastBtn2.setOnClickListener {
             BubbleMessageToast.show(this, "success", BubbleMessageToast.SUCCESS)
+//            BubbleMessageToast.show(this, "success", BubbleMessageToast.LENGTH_SHORT, R.drawable.toast_background, R.drawable.success_icon)
         }
 
         mBinding.toastBtn3.setOnClickListener {
-            BubbleMessageToast.show(this, "failure", BubbleMessageToast.FAILED)
+            BubbleMessageToast.show(this, "success", BubbleMessageToast.FAILED)
+//            BubbleMessageToast.show(this, "failure", BubbleMessageToast.LENGTH_SHORT, R.drawable.toast_background, R.drawable.failed_icon)
+        }
+
+        mBinding.navigate.setOnClickListener {
+            startActivity(Intent(this@MainActivity, SecondActivity::class.java))
         }
     }
 }
