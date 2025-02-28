@@ -39,7 +39,7 @@ android {
 }
 
 dependencies {
-    implementation("com.github.HappyEveryTian:BubbleMessageToast:1.0.0")
+    implementation(project(":bubblemessagetoast"))
     implementation("io.github.zhangqinhao:MoPermission:1.0.9")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.3.1")
